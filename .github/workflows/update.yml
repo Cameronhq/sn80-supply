@@ -1,0 +1,21 @@
+name: update-supply
+on:
+  schedule:
+    - cron: "17 * * * *"    # hourly
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          TAOSTATS_KEY: ${{ secrets.TAOSTATS_KEY }}
+        run: python3 update.py
+      - run: |
+          git config user.name sn80-bot
+          git config user.email bot@openroboto.ai
+          git add -A
+          git diff --cached --quiet || git commit -m "supply update $(date -u +%FT%TZ)"
+          git push
